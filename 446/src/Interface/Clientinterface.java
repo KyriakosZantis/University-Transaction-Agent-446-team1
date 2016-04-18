@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 
 public class Clientinterface extends JFrame {
@@ -19,7 +20,18 @@ public class Clientinterface extends JFrame {
 	 * Launch the application.
 	 */
 
-	
+//	public void showPanel(String name){	
+//	EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					Clientinterface frame = new Clientinterface(name);
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Create the frame.
@@ -36,7 +48,10 @@ public class Clientinterface extends JFrame {
 		JButton btnSendInstr = new JButton("Send Next Instruction");
 		btnSendInstr.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				doButtonAction();
+				if(doButtonAction()==0){
+					
+			dispose();
+				}
 			}
 
 
@@ -45,9 +60,9 @@ public class Clientinterface extends JFrame {
 		contentPane.add(btnSendInstr);
 	}
 	
-	public void doButtonAction() {
+	public int doButtonAction() {
 	//Must be implement at child
 		System.out.println("You should implement this Function");
-		
+		return 0;
 	}
 }
