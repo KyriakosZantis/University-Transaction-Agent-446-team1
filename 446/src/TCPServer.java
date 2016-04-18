@@ -28,15 +28,18 @@ class TCPServer implements Runnable {
 			while(true){
 				// TODO Auto-generated method stub
 				Socket connectionSocket = welcomeSocket.accept();
+				
 				BufferedReader inFromClient =
 						new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-
+				
 				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 				clientSentence = inFromClient.readLine(); 
 				System.out.println("Received: " + clientSentence);
 				clientSentence = clientSentence + " hi";
 				capitalizedSentence = clientSentence.toUpperCase() + '\n';
 				outToClient.writeBytes(capitalizedSentence);
+				
+				
 			}
 		}
 		catch(Exception e){
