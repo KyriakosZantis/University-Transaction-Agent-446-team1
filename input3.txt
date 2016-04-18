@@ -1,3 +1,0 @@
-Write C
-Write C2
-End
