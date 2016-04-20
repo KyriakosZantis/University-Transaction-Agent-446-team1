@@ -1,11 +1,10 @@
+import java.util.ArrayList;
 
 public class OurMain {
 
 	static int num_of_clients = 3;
 	static Thread[] clients = new Thread[num_of_clients];
-	static char items[] = new char[20];
-	static int status_of_items[] = new int[20];
-	static int locker_of_items[] = new int[20];
+	static ArrayList<Item> items = new ArrayList<Item>(20);
 	/**
 	 * @param args
 	 */
@@ -13,9 +12,8 @@ public class OurMain {
 		String inputfile;
 		String name;
 		for (int i=0; i<20; i++)
-			items[i] = (char)('a'+i);
-		// TODO Auto-generated method stub
-		Thread t1 = new Thread(new TCPServer());
+			items.add(new Item((char)('a'+i)));
+		Thread t1 = new Thread(new TCPServer("Server"));
 		t1.setDaemon(true);
 		t1.start();
 		for (int i=0; i<num_of_clients; i++){
