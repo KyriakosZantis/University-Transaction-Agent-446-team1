@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JRadioButton;
@@ -12,10 +13,14 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Menu extends JFrame {
 
 	private JPanel contentPane;
+	private ButtonGroup bgUpdate = new ButtonGroup();
+	private ButtonGroup bgType = new ButtonGroup();
 
 	/**
 	 * Launch the application.
@@ -43,15 +48,30 @@ public class Menu extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
+		
 		JRadioButton rdbtnImmediateUpdate = new JRadioButton("Immediate Update");
 		
 		JRadioButton rdbtnDeferredUpdate = new JRadioButton("Deferred Update");
+		
+		bgUpdate.add(rdbtnImmediateUpdate);
+		bgUpdate.add(rdbtnDeferredUpdate);
 		
 		JRadioButton rdbtnWoundAndWait = new JRadioButton("Wound and wait");
 		
 		JRadioButton rdbtnWaitAndDie = new JRadioButton("Wait and die");
 		
 		JButton btnStartServer = new JButton("Start Server");
+		btnStartServer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(doButtonAction()==0){
+					dispose();
+				}
+			}
+		});
+		
+		bgType.add(rdbtnWoundAndWait);
+		bgType.add(rdbtnWaitAndDie);
+		bgType.add(btnStartServer);
 		
 		JRadioButton rdbtnCautiousWaiting = new JRadioButton("Cautious Waiting");
 		
@@ -106,5 +126,11 @@ public class Menu extends JFrame {
 					.addGap(22))
 		);
 		contentPane.setLayout(gl_contentPane);
+	}
+	
+	public int doButtonAction() {
+		//Must be implement at child
+		System.out.println("You should implement this Function");
+		return 0;
 	}
 }

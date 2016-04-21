@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 
-public class OurMain {
+import Interface.Menu;
+
+public class OurMain extends Menu {
 
 	static int num_of_clients = 3;
 	static Thread[] clients = new Thread[num_of_clients];
@@ -8,7 +10,10 @@ public class OurMain {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	
+	@Override
+	public int doButtonAction() {
+
 		String inputfile;
 		String name;
 		for (int i=0; i<20; i++)
@@ -22,6 +27,14 @@ public class OurMain {
 			clients[i] = new Thread(new TCPClient(inputfile, name, (i+1)));
 			clients[i].start();
 		}
+	
+
+		return 0;
 	}
 
+	
+	public static void main(String[] args) {
+		OurMain o=new OurMain();
+		o.setVisible(true);
+	}
 }
