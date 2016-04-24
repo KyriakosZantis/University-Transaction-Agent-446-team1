@@ -5,13 +5,13 @@ import java.net.*;
 import Interface.Serverinterface;
 
 
-class TCPServer extends Serverinterface implements Runnable {
-	
+class TCPServer  implements Runnable {
+//	class TCPServer extends Serverinterface implements Runnable {
 	String name;
 	int c = 0;
 	
 	public TCPServer(String na) {
-		super(na);
+		//super(na);
 		name = na;
 	}
 
@@ -19,7 +19,7 @@ class TCPServer extends Serverinterface implements Runnable {
 	public void run() {
 
 		try {
-			setVisible(true);
+			//setVisible(true);
 			String clientSentence;
 			String capitalizedSentence;
 			ServerSocket welcomeSocket = new ServerSocket(6789);
@@ -63,12 +63,12 @@ class TCPServer extends Serverinterface implements Runnable {
 		}
 	}
 	
-	@Override
+/*	@Override
 	public int Click_Strict() {
 		//Must be implement at child
 		c++;
 		if (c % 2 == 1) return 1;
 		return 0;
-	}
+	}*/
 }
 	

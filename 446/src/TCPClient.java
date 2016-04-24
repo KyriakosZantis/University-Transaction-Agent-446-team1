@@ -37,6 +37,7 @@ class TCPClient extends Clientinterface implements Runnable {
 			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			sentence = array.get(line);
 			line++;
+			
 			//Strict 2-Phase Commit
 		/*if (sentence.contains("Commit") || sentence.contains("Abort"))
 			for (int i=0; i<20; i++)
@@ -69,8 +70,11 @@ class TCPClient extends Clientinterface implements Runnable {
 			modifiedSentence = inFromServer.readLine();
 			System.out.println("FROM SERVER: " + modifiedSentence);
 			clientSocket.close();
-			if (line == arraylength) 
+			if (line == arraylength) {
 				return 0;
+			}else{
+				lblNextInstruction.setText(array.get(line));
+			}
 		}
 		catch(Exception e){
 			System.out.println("Error at Button at Transaction "+id);
@@ -92,6 +96,7 @@ class TCPClient extends Clientinterface implements Runnable {
 			inFromUser.close();
 			/*for (int i=0; i<arraylength; i++)
 				System.out.println(array.get(i));*/
+			lblNextInstruction.setText(array.get(0));
 			setVisible(true);
 		}
 		catch(Exception e){

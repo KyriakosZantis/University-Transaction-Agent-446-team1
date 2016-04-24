@@ -11,10 +11,13 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+import javax.swing.JLabel;
 
 public class Clientinterface extends JFrame {
 
 	private JPanel contentPane;
+	protected String nextInstr="";
+	protected JLabel lblNextInstruction = new JLabel("Next Instruction");
 
 	/**
 	 * Launch the application.
@@ -39,7 +42,7 @@ public class Clientinterface extends JFrame {
 	public Clientinterface(String name) {
 		setTitle(name);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 211, 133);
+		setBounds(100, 100, 277, 159);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -53,8 +56,12 @@ public class Clientinterface extends JFrame {
 				}
 			}
 		});
-		btnSendInstr.setBounds(10, 42, 178, 42);
+		btnSendInstr.setBounds(43, 59, 178, 42);
 		contentPane.add(btnSendInstr);
+		
+		 
+		lblNextInstruction.setBounds(38, 13, 137, 16);
+		contentPane.add(lblNextInstruction);
 	}
 
 	public int doButtonAction() {
@@ -62,4 +69,6 @@ public class Clientinterface extends JFrame {
 		System.out.println("You should implement this Function");
 		return 0;
 	}
+
+	
 }
