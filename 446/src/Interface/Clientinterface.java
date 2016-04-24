@@ -18,6 +18,8 @@ public class Clientinterface extends JFrame {
 	private JPanel contentPane;
 	protected String nextInstr="";
 	protected JLabel lblNextInstruction = new JLabel("Next Instruction");
+   static public int client_windowX=280;
+   public static int client_windowY=160;
 
 	/**
 	 * Launch the application.
@@ -42,7 +44,7 @@ public class Clientinterface extends JFrame {
 	public Clientinterface(String name) {
 		setTitle(name);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 277, 159);
+		setBounds(100, 100, client_windowX, client_windowY);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -60,7 +62,7 @@ public class Clientinterface extends JFrame {
 		contentPane.add(btnSendInstr);
 		
 		 
-		lblNextInstruction.setBounds(38, 13, 137, 16);
+		lblNextInstruction.setBounds(43, 13, 137, 16);
 		contentPane.add(lblNextInstruction);
 	}
 

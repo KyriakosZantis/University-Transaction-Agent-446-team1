@@ -97,6 +97,7 @@ class TCPClient extends Clientinterface implements Runnable {
 			/*for (int i=0; i<arraylength; i++)
 				System.out.println(array.get(i));*/
 			lblNextInstruction.setText(array.get(0));
+			setLocation((id-1)*client_windowX+1, 0);//to shown one side by the other
 			setVisible(true);
 		}
 		catch(Exception e){

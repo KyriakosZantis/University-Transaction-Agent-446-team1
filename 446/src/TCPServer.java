@@ -2,16 +2,17 @@
 import java.io.*;
 import java.net.*;
 
+import Interface.Clientinterface;
 import Interface.Serverinterface;
 
 
-class TCPServer  implements Runnable {
+class TCPServer extends Serverinterface implements Runnable {
 //	class TCPServer extends Serverinterface implements Runnable {
 	String name;
 	int c = 0;
 	
 	public TCPServer(String na) {
-		//super(na);
+		super(na);
 		name = na;
 	}
 
@@ -19,7 +20,10 @@ class TCPServer  implements Runnable {
 	public void run() {
 
 		try {
-			//setVisible(true);
+			setLocation(0,Clientinterface.client_windowY);
+			//to be shown down of the Clients
+			
+			setVisible(true);
 			String clientSentence;
 			String capitalizedSentence;
 			ServerSocket welcomeSocket = new ServerSocket(6789);
