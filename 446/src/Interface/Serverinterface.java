@@ -14,6 +14,10 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JList;
 import javax.swing.JTextArea;
+import javax.swing.JLabel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class Serverinterface extends JFrame{
 	
@@ -21,18 +25,6 @@ public class Serverinterface extends JFrame{
 	boolean TwoPhaseLocking = false;
 	boolean deffered_writing = true;
 
-	/*public void showPanel(String name){	
-		EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						Serverinterface frame = new Serverinterface(name);
-						frame.setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		}*/
 	
 	public Serverinterface(String name){
 		setTitle(name);
@@ -41,13 +33,20 @@ public class Serverinterface extends JFrame{
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(100, 100, 100, 100));
 		setContentPane(contentPane);
-		contentPane.setLayout(new GridLayout(3,3));
+		contentPane.setLayout(null);
 		
-		JTextArea textInstructions = new JTextArea();
-		textInstructions.setText("asdffsadfsdfsadjkfsdfsdsd\nfsadfsadfsadfsad");
-		//to insert Slider to show what the log file has in it
-		contentPane.add(textInstructions);
+		JButton btnCrash = new JButton("Crash");
+		btnCrash.setBounds(10, 237, 89, 23);
+		contentPane.add(btnCrash);
 		
+		JButton btnCheckpoint = new JButton("CheckPoint");
+		btnCheckpoint.setBounds(263, 237, 89, 23);
+		contentPane.add(btnCheckpoint);
+		
+		JLabel lblRandomLabel = new JLabel("Random Label");
+		lblRandomLabel.setBounds(10, 11, 43, 14);
+		contentPane.add(lblRandomLabel);
+	
 	
 	}
 
