@@ -36,9 +36,8 @@ class TCPClient extends Clientinterface implements Runnable {
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			sentence = array.get(line);
-			line++;
 			
-			//Strict 2-Phase Commit
+			//Strict 2-Phase Lock
 		/*if (sentence.contains("Commit") || sentence.contains("Abort"))
 			for (int i=0; i<20; i++)
 				if (OurMain.locker_of_items[i] == id)	 //Did i lock item 'i'?
@@ -68,8 +67,11 @@ class TCPClient extends Clientinterface implements Runnable {
 		}*/
 			outToServer.writeBytes(sentence + '\n');
 			modifiedSentence = inFromServer.readLine();
-			System.out.println("FROM SERVER: " + modifiedSentence);
+			System.out.println("FROM SERVER: " + modifiedSentence + "\n");
 			clientSocket.close();
+			if(!modifiedSentence.equals("NOT ALLOWED"))
+			line++;
+			
 			if (line == arraylength) {
 				return 0;
 			}else{

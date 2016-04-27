@@ -1,3 +1,0 @@
-T3 Write E
-T3 Write F
-T3 End

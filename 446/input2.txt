@@ -1,3 +1,0 @@
-T2 Write C
-T2 Write D
-T2 End

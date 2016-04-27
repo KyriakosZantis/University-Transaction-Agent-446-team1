@@ -7,7 +7,7 @@ import Interface.Menu;
 public class OurMain extends Menu {
 
 	Thread[] clients = new Thread[num_of_clients];
-	static ArrayList<Item> items = new ArrayList<Item>(26);
+	
 
 	/**
 	 * @param args
@@ -65,23 +65,8 @@ public class OurMain extends Menu {
 		 * 
 		 */
 
-		for (int i = 0; i < 26; i++) {
-			items.add(new Item((char) ('a' + i)));
-			try {
-				File valuefile = new File((char) ('A' + i) + ".txt");
-				
-				valuefile.createNewFile();
-				
-				FileWriter valuefw = new FileWriter(valuefile.getAbsoluteFile());
-				valuefw.write("0");
-				valuefw.close();
-			
-			} catch (Exception e) {
-				System.out.println("Error creating .txt file");
-			}
-
-		}
-		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type));
+		
+		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type,num_of_clients));
 		t1.setDaemon(true);
 		t1.start();
 		for (int i = 0; i < num_of_clients; i++) {

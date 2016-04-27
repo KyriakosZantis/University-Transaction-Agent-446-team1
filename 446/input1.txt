@@ -1,3 +1,0 @@
-T1 Write A
-T1 Write B
-T1 End
