@@ -92,7 +92,7 @@ class TCPClient extends Clientinterface implements Runnable {
 				sentence = inFromUser.readLine();
 				array.add(sentence);
 				arraylength++;
-			} while (!sentence.contains("End"));
+			} while (!sentence.contains("END"));
 			inFromUser.close();
 			/*for (int i=0; i<arraylength; i++)
 				System.out.println(array.get(i));*/
