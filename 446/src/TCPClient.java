@@ -67,9 +67,9 @@ class TCPClient extends Clientinterface implements Runnable {
 		}*/
 			outToServer.writeBytes(sentence + '\n');
 			modifiedSentence = inFromServer.readLine();
-			System.out.println("FROM SERVER: " + modifiedSentence + "\n");
+			System.out.println("FROM SERVER: " + modifiedSentence);
 			clientSocket.close();
-			if(!modifiedSentence.equals("NOT ALLOWED"))
+			if(!modifiedSentence.equals("NOT ALLOWED3"))
 			line++;
 			
 			if (line == arraylength) {
