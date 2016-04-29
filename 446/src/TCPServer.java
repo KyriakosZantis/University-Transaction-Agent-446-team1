@@ -88,6 +88,8 @@ class TCPServer extends Serverinterface implements Runnable {
 			// String buffer = "This is the content to write into file";
 
 			while (true) {
+				System.out.println("Log will write the next entr at line : "+logline);
+				boolean log_flag=false;
 				// TODO Auto-generated method stub
 				Socket connectionSocket = welcomeSocket.accept();
 
@@ -184,21 +186,21 @@ class TCPServer extends Serverinterface implements Runnable {
 					logline++;
 				} else if (option_update == 2) {
 
-				
+	///DEFERRED UPDATE
+					
+			
 					// step1
 					String[] comm = clientSentence.split(" ");
 					int transaction_num = Integer.parseInt(comm[0].substring(1));
 
-					if (earliestLSN[transaction_num] == 0) {
-						earliestLSN[transaction_num] = logline;
-					}
-
+			
 					if (comm[1].equals("END")) {
 						num_of_clients--;
 						System.out.println(num_of_clients);
 						write_to_log(clientSentence);
 						//outToClient.writeBytes("OK");
 						serverResponse="OK";
+						log_flag=true;
 					}
 
 					else if (comm[1].equals("COMMIT")) {
@@ -206,10 +208,12 @@ class TCPServer extends Serverinterface implements Runnable {
 						write_to_log(clientSentence);
 						//outToClient.writeBytes("OK");
 						serverResponse="OK";
+						log_flag=true;
 					} else if (comm[1].equals("ABORT")) {
 						write_to_log(clientSentence);
 						//outToClient.writeBytes("OK");
 						serverResponse="OK";
+						log_flag=true;
 					} else if (comm[1].equals("READLOCK")) {
 					
 						Item item = items.get((int) (Character.toLowerCase(comm[2].charAt(0)) - 'a'));
@@ -254,6 +258,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						if (comm[1].equals("READ")) {
 								Scanner valuefw = new Scanner(valuefile);
 								String temp = valuefw.next();
+								
 								System.out.println(comm[2] + "=" + temp);
 								valuefw.close();
 								// STELOUME TO VALUE PISW STON CLIENT
@@ -262,24 +267,37 @@ class TCPServer extends Serverinterface implements Runnable {
 								serverResponse=temp;
 								
 								write_to_log(clientSentence);
+								log_flag=true;
 						//WRITE COMMAND
-						} else {
+						} else  if (comm[1].equals("WRITE")){
 								System.out.println("OK");
 								// STELOUME TO VALUE PISW STON CLIENT
 								//outToClient.writeBytes("OK");
 								serverResponse="OK";
 								write_to_log(clientSentence);
+								log_flag=true;
+						} else{
+							Exception e = null;
+							throw e;
 						}
 					}
 					
+					//if the first line is readlock dont count
+					if(log_flag){//if Unlock or lock dont change the line
+
+					if (earliestLSN[transaction_num] == 0) {
+						earliestLSN[transaction_num] = logline;
+					}
+					}
+
 					
 					// step2
 
 					// CHECKPOINT PHASE
-					System.out.println("Log line is "+logline);
+			
 					if (logline % 10 == 0 || num_of_clients == 0) {
 						int trans_num;
-						int start_line = Integer.MAX_VALUE;
+						int start_line = logline;
 						for (int i = 0; i < 10; i++){
 							if (commited[i] == 1){
 								if (earliestLSN[i] < start_line){
@@ -287,20 +305,17 @@ class TCPServer extends Serverinterface implements Runnable {
 								}
 							}
 						}
-						if(start_line==Integer.MAX_VALUE){
-							System.out.println("Provlima");
+					
+						//	System.out.println("start_line "+start_line);
 							
-						}else {
-							System.out.println(" start_line "+start_line);
-							
-						}
+						
 						Scanner redo = new Scanner(log_file);
 						int i = 1;
-						while (i != start_line) {
+						while (i < start_line) {
 							i++;
 							redo.nextLine();
 						}
-						while (i <= logline) {
+						while (i < logline) {
 							String command = redo.nextLine();
 							String[] comm2 = command.split(" ");
 							trans_num = Integer.parseInt(comm2[0].substring(1));
@@ -321,15 +336,20 @@ class TCPServer extends Serverinterface implements Runnable {
 						
 						System.out.println("FLUSHED");
 					}
-
+					if(log_flag){//if Unlock or lock dont change the line
 
 					logline++;
+					}
 				}
 							outToClient.writeBytes(serverResponse+'\n');
 								
 			}
 		} catch (IOException e1) {
 			System.out.println("Provlima ston server");
+			e1.printStackTrace();
+		} catch (Exception e1) {
+			
+			System.err.println("Wrong Input kirie THALI");
 			e1.printStackTrace();
 		} 
 	}
