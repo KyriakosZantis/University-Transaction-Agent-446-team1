@@ -12,16 +12,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JList;
 import javax.swing.JTextArea;
+import javax.swing.JScrollBar;
 
 public class Serverinterface extends JFrame{
 	
 	private JPanel contentPane;
 	boolean TwoPhaseLocking = false;
 	boolean deffered_writing = true;
-
+	protected static int  server_windowX=328;
+	protected static int  server_windowY=122;
 	/*public void showPanel(String name){	
 		EventQueue.invokeLater(new Runnable() {
 				public void run() {
@@ -36,28 +40,48 @@ public class Serverinterface extends JFrame{
 		}*/
 	
 	public Serverinterface(String name){
+		setTitle(name);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
  		contentPane = new JPanel();
  		contentPane.setBorder(new EmptyBorder(100, 100, 100, 100));
+ 		setBounds(100, 100, server_windowX, server_windowY);
  		setContentPane(contentPane);
  		contentPane.setLayout(null);
+ 		
  		JButton btnCrash = new JButton("Crash");
- 			btnCrash.setBounds(12, 237, 120, 23);
- 			contentPane.add(btnCrash);
+ 		btnCrash.setBounds(12, 30, 141, 37);
+ 		btnCrash.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				doButtonActionCrash();
+			}
+		});
+ 		contentPane.add(btnCrash);
  		 		
- 				JButton btnCheckpoint = new JButton("CheckPoint");
- 				btnCheckpoint.setBounds(271, 237, 120, 23);
- 				contentPane.add(btnCheckpoint);
+ 		JButton btnCheckpoint = new JButton("CheckPoint");
+ 		btnCheckpoint.setBounds(175, 30, 127, 37);
+ 		btnCheckpoint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				doButtonActionCheckpoint();
+			}
+		});
+ 		contentPane.add(btnCheckpoint);
  				
- 				JLabel lblRandomLabel = new JLabel("Random Label");
- 				lblRandomLabel.setBounds(10, 11, 43, 14);
- 				contentPane.add(lblRandomLabel);
-	
+ 				
+ 				
+ 				
 	}
 
-	
-	
-	public int Click_Strict() {
-		//Must be implement at child
+	public int doButtonActionCrash() {
+		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	public int doButtonActionCheckpoint() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	
+	
+
 }

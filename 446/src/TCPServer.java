@@ -1,10 +1,15 @@
 
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
 import Interface.Clientinterface;
+import Interface.LogfileView;
 import Interface.Serverinterface;
 
 class TCPServer extends Serverinterface implements Runnable {
@@ -19,13 +24,27 @@ class TCPServer extends Serverinterface implements Runnable {
 	int num_of_clients;
 	static ArrayList<Item> items = new ArrayList<Item>(26);
 	File log_file ;
+	String Logfile="";
+	LogfileView frame=new LogfileView(Logfile);
+
 
 	private void write_to_log(String clientSentence) throws IOException {
-
+		if(frame.isVisible()){
+			//System.out.println("Is visible");
+			frame.setVisible(false);
+		}
+		
+		
 		FileWriter logfw = new FileWriter(log_file.getAbsoluteFile(), true);
 		logfw.write(clientSentence);
 		logfw.write("\n");
 		logfw.close();
+		//for interface
+		Logfile+=logline+") "+clientSentence+"<br>";
+	    frame = new LogfileView(Logfile);
+		frame.setLocation(0, Clientinterface.client_windowY+server_windowY);
+		frame.setVisible(true);
+		
 	}
 
 	public TCPServer(String na, int opt_up, int opt_ty, int num_oc) {
@@ -36,6 +55,38 @@ class TCPServer extends Serverinterface implements Runnable {
 		num_of_clients = num_oc;
 	}
 
+	@Override
+	public int doButtonActionCrash() {
+
+
+		try {
+			write_to_log("T0 CRASH");
+			logline++;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return 0;
+	}
+	
+	
+	@Override
+	public int doButtonActionCheckpoint() {
+
+
+		try {
+			write_to_log("T0 CHECKPOINT");
+			logline++;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return 0;
+	}
+	
+	
 	@Override
 	public void run() {
 		log_file = new File("log.txt");
