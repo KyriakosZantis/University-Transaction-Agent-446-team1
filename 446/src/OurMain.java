@@ -7,8 +7,7 @@ import Interface.Menu;
 
 public class OurMain extends Menu {
 
-	Thread[] clients = new Thread[num_of_clients];
-	
+	Thread[] clients =null;
 
 	/**
 	 * @param args
@@ -65,7 +64,7 @@ public class OurMain extends Menu {
 		 * valuefilename new
 		 * 
 		 */
-
+		clients = new Thread[num_of_clients];
 		
 		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type,num_of_clients));
 		t1.setDaemon(true);
