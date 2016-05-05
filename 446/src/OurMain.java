@@ -57,7 +57,7 @@ public class OurMain extends Menu {
 
 		}
 
-		System.out.println("The Number of Clients are " + num_of_clients);
+		
 
 		/*
 		 * try if items[i].txt exist valuefilename=items[i].txt else
@@ -65,21 +65,25 @@ public class OurMain extends Menu {
 		 * 
 		 */
 		clients = new Thread[num_of_clients];
-		
-		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type,num_of_clients));
-		t1.setDaemon(true);
-		t1.start();
+     int numofCl=0;
 		for (int i = 0; i < num_of_clients; i++) {
 			inputfile = "inputs/input" + (i + 1) + ".txt";
 			name = "Client" + (i + 1);
 			try {
 				clients[i] = new Thread(new TCPClient(inputfile, name, (i + 1)));
 				clients[i].start();
+				numofCl++;
 			} catch (Exception e) {
 				System.out.println("There is no file with name " + inputfile);
 			}
 
 		}
+		
+		
+		System.out.println("The Number of Clients are " + numofCl);
+		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type,numofCl));
+		t1.setDaemon(true);
+		t1.start();
 
 		return 0;
 	}

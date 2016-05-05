@@ -71,6 +71,4 @@ public class Clientinterface extends JFrame {
 		System.out.println("You should implement this Function");
 		return 0;
 	}
-
-	
 }

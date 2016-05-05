@@ -64,6 +64,24 @@ class TCPServer extends Serverinterface implements Runnable {
 		try {
 			write_to_log("T0 CRASH");
 			logline++;
+			
+			if (option_update == 1){//Immediate
+				for(int i=1;i<numofclient;i++){
+					if(commited[i]==0){
+						String comm="T"+i;
+						abort_trans(comm);
+						
+					}
+				}
+				
+				
+			}else if (option_update == 2){//Differed
+				
+				checkpoint(false);
+				
+			}
+			
+		System.exit(0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -228,6 +246,56 @@ class TCPServer extends Serverinterface implements Runnable {
 			item.touched = false;
 		}
 	}
+	
+	public void checkpoint(boolean log_flag) throws IOException{
+		
+			int loglinecheck = logline;
+			if (log_flag == false)
+				loglinecheck--;
+			int trans_num;
+			int start_line = loglinecheck;
+			for (int i = 0; i < 10; i++) {// number of
+											// transactions
+				if (commited[i] == 1) {
+					if (earliestLSN[i] < start_line) {
+						start_line = earliestLSN[i];
+					}
+				}
+			}
+
+			// System.out.println("start_line "+start_line);
+
+			Scanner redo = new Scanner(log_file);
+			int i = 1;
+			while (i < start_line) {
+				i++;
+				redo.nextLine();
+			}
+			while (i <= loglinecheck) {
+				String command = redo.nextLine();
+				String[] comm2 = command.split(" ");
+				trans_num = Integer.parseInt(comm2[0].substring(1));
+				if (comm2[1].equals("WRITE")) {
+					if (commited[trans_num] == 1) {
+						File valuefile = new File(comm2[2] + ".txt");
+						FileWriter valuefw = new FileWriter(valuefile.getAbsoluteFile());
+						valuefw.write(comm2[3]);
+						valuefw.close();
+
+					}
+				}
+				i++;
+			}
+			redo.close();
+			for (int k = 0; k < 10; k++)
+				commited[k] = 0;
+
+			System.out.println("FLUSHED");
+		}
+	
+	
+	
+	
 
 	@Override
 	public void run() {
@@ -279,7 +347,7 @@ class TCPServer extends Serverinterface implements Runnable {
 			// String buffer = "This is the content to write into file";
 
 			while (true) {
-				System.out.println("Log will write the next entr at line : " + logline);
+				System.out.println("Log will write the next entry at line : " + logline);
 				boolean log_flag = false;
 				// TODO Auto-generated method stub
 				Socket connectionSocket = welcomeSocket.accept();
@@ -306,9 +374,20 @@ class TCPServer extends Serverinterface implements Runnable {
 						/// IMMEDIATE UPDATE
 						// step1
 
-						if (timestamp[transaction_num] == 0)
-							timestamp[transaction_num] = ++TS;
-
+						if (timestamp[transaction_num] == 0){
+							
+							if (!comm[1].equals("BEGIN")) {
+								num_of_clients--;
+								System.out.println(num_of_clients);
+								serverResponse = "KILL";
+								outToClient.writeBytes(serverResponse + '\n');
+								continue;
+							}
+							else{
+								timestamp[transaction_num] = ++TS;
+							}
+						
+						}
 						if (comm[1].equals("END")) {
 							num_of_clients--;
 							System.out.println(num_of_clients);
@@ -317,7 +396,13 @@ class TCPServer extends Serverinterface implements Runnable {
 							serverResponse = "OK";
 							log_flag = true;
 						}
-
+						else if (comm[1].equals("BEGIN")) {
+							earliestLSN[transaction_num] = logline;
+							write_to_log(clientSentence);
+							// outToClient.writeBytes("OK");
+							serverResponse = "OK";
+							log_flag = true;
+						}
 						else if (comm[1].equals("COMMIT")) {
 							commited[transaction_num] = 1;
 							write_to_log(clientSentence);
@@ -478,9 +563,6 @@ class TCPServer extends Serverinterface implements Runnable {
 
 						// if the first line is readlock dont count
 						if (log_flag) {// if Unlock or lock dont change the line
-
-							if (earliestLSN[transaction_num] == 0)
-								earliestLSN[transaction_num] = logline;
 							// if Unlock or lock dont change the line
 							logline++;
 						}
@@ -490,12 +572,31 @@ class TCPServer extends Serverinterface implements Runnable {
 						/// DEFERRED UPDATE
 						// step1
 
-						if (timestamp[transaction_num] == 0)
-							timestamp[transaction_num] = ++TS;
+						if (timestamp[transaction_num] == 0){
+							
+								if (!comm[1].equals("BEGIN")) {
+									num_of_clients--;
+									System.out.println(num_of_clients);
+									serverResponse = "KILL";
+									outToClient.writeBytes(serverResponse + '\n');
+									continue;
+								}
+								else{
+									timestamp[transaction_num] = ++TS;
+								}
+							
+							}
 
 						if (comm[1].equals("END")) {
 							num_of_clients--;
 							System.out.println(num_of_clients);
+							write_to_log(clientSentence);
+							// outToClient.writeBytes("OK");
+							serverResponse = "OK";
+							log_flag = true;
+						}
+						else if (comm[1].equals("BEGIN")) {
+							earliestLSN[transaction_num] = logline;
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
@@ -655,62 +756,20 @@ class TCPServer extends Serverinterface implements Runnable {
 							}
 						}
 
-						// if the first line is readlock dont count
-						if (log_flag) {// if Unlock or lock dont change the line
-
-							if (earliestLSN[transaction_num] == 0) {
-								earliestLSN[transaction_num] = logline;
-							}
-						}
+						
+							
+								
+							
+						
 
 						// step2
 
 						// CHECKPOINT PHASE
-
 						if (logline % 10 == 0 || num_of_clients == 0) {
-							int loglinecheck = logline;
-							if (log_flag == false)
-								loglinecheck--;
-							int trans_num;
-							int start_line = loglinecheck;
-							for (int i = 0; i < 10; i++) {// number of
-															// transactions
-								if (commited[i] == 1) {
-									if (earliestLSN[i] < start_line) {
-										start_line = earliestLSN[i];
-									}
-								}
-							}
-
-							// System.out.println("start_line "+start_line);
-
-							Scanner redo = new Scanner(log_file);
-							int i = 1;
-							while (i < start_line) {
-								i++;
-								redo.nextLine();
-							}
-							while (i <= loglinecheck) {
-								String command = redo.nextLine();
-								String[] comm2 = command.split(" ");
-								trans_num = Integer.parseInt(comm2[0].substring(1));
-								if (comm2[1].equals("WRITE")) {
-									if (commited[trans_num] == 1) {
-										File valuefile = new File(comm2[2] + ".txt");
-										FileWriter valuefw = new FileWriter(valuefile.getAbsoluteFile());
-										valuefw.write(comm2[3]);
-										valuefw.close();
-
-									}
-								}
-								i++;
-							}
-							redo.close();
-							for (int k = 0; k < 10; k++)
-								commited[k] = 0;
-
-							System.out.println("FLUSHED");
+						checkpoint (log_flag);
 						}
+
+
 						if (log_flag) {// if Unlock or lock dont change the line
 
 							logline++;

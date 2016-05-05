@@ -20,12 +20,14 @@ class TCPClient extends Clientinterface implements Runnable {
 	ArrayList<String> array = new ArrayList<String>(100);
 	int arraylength = 0;
 	int line = 0;
+	boolean notactive=false;
 
-	TCPClient(String in, String na, int i) {
+	TCPClient(String in, String na, int i) throws FileNotFoundException {
 		super(na);
 		inputfile = in;
 		name = na;
 		id = i;
+		inFromUser = new BufferedReader(new FileReader(inputfile));
 	}
 
 	// Every time the button is clicked, open new socket connection and send a
@@ -40,6 +42,7 @@ class TCPClient extends Clientinterface implements Runnable {
 				outToServer = new DataOutputStream(clientSocket.getOutputStream());
 				inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				sentence = array.get(line);
+				
 
 				// Strict 2-Phase Lock
 				/*
@@ -65,6 +68,10 @@ class TCPClient extends Clientinterface implements Runnable {
 				modifiedSentence = inFromServer.readLine();
 				System.out.println("FROM SERVER: " + modifiedSentence);
 				clientSocket.close();
+				
+				 if (modifiedSentence.equals("KILL")){
+						return 0;
+					}
 				if (!modifiedSentence.equals("WAIT") && !modifiedSentence.equals("RESTART"))
 					line++;
 				else if (!modifiedSentence.equals("RESTART")){
@@ -95,7 +102,7 @@ class TCPClient extends Clientinterface implements Runnable {
 			inFromUser = new BufferedReader(new FileReader(inputfile));
 			do {
 				sentence = inFromUser.readLine();
-				array.add(sentence);
+				array.add("T"+this.id+" "+sentence);
 				arraylength++;
 			} while (!sentence.contains("END"));
 			inFromUser.close();
@@ -109,6 +116,7 @@ class TCPClient extends Clientinterface implements Runnable {
 			setVisible(true);
 		} catch (Exception e) {
 			System.out.println("Error at Transaction " + id);
+			boolean notactive=true;
 		}
 
 	}
