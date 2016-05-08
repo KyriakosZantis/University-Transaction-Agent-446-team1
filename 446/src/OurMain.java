@@ -1,8 +1,3 @@
-
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-
 import Interface.Menu;
 
 public class OurMain extends Menu {
@@ -57,15 +52,13 @@ public class OurMain extends Menu {
 
 		}
 
-		
-
 		/*
 		 * try if items[i].txt exist valuefilename=items[i].txt else
 		 * valuefilename new
 		 * 
 		 */
 		clients = new Thread[num_of_clients];
-     int numofCl=0;
+		int numofCl=0;
 		for (int i = 0; i < num_of_clients; i++) {
 			inputfile = "inputs/input" + (i + 1) + ".txt";
 			name = "Client" + (i + 1);
@@ -78,8 +71,8 @@ public class OurMain extends Menu {
 			}
 
 		}
-		
-		
+
+
 		System.out.println("The Number of Clients are " + numofCl);
 		Thread t1 = new Thread(new TCPServer("Server", option_update, option_type,numofCl));
 		t1.setDaemon(true);

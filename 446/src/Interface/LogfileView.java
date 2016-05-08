@@ -1,8 +1,5 @@
 package Interface;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,14 +11,6 @@ public class LogfileView extends JFrame {
 
 	private JPanel contentPane;
 
-	/**
-	 * Launch the application.
-	 */
-
-
-	/**
-	 * Create the frame.
-	 */
 	public LogfileView(String t) {
 		setTitle("LOGFILE");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

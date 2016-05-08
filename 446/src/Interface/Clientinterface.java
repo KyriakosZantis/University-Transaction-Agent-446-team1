@@ -1,15 +1,10 @@
 package Interface;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 
@@ -18,29 +13,10 @@ public class Clientinterface extends JFrame {
 	private JPanel contentPane;
 	protected String nextInstr="";
 	protected JLabel lblNextInstruction = new JLabel("Next Instruction");
-   static public int client_windowX=280;
-   public static int client_windowY=160;
+	static public int client_windowX=280;
+	public static int client_windowY=160;
 
-	/**
-	 * Launch the application.
-	 */
 
-		/*public void showPanel(String name){	
-		EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						Clientinterface frame = new Clientinterface(name);
-						frame.setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		}*/
-		
-	/**
-	 * Create the frame.
-	 */
 	public Clientinterface(String name) {
 		setTitle(name);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,8 +36,6 @@ public class Clientinterface extends JFrame {
 		});
 		btnSendInstr.setBounds(43, 59, 178, 42);
 		contentPane.add(btnSendInstr);
-		
-		 
 		lblNextInstruction.setBounds(43, 13, 137, 16);
 		contentPane.add(lblNextInstruction);
 	}
