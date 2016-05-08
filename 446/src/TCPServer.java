@@ -16,12 +16,14 @@ class TCPServer extends Serverinterface implements Runnable {
 	int c = 0;
 	int numofclient = 11;
 
+	int[] lock_commit = new int[numofclient];
 	int[] commited = new int[numofclient];
 	boolean[] compens = new boolean[numofclient];
 	int[] earliestLSN = new int[numofclient];
 	int[] timestamp = new int[numofclient];
 	boolean[] waitgraph = new boolean[numofclient];
 	boolean[] shrinking_phase = new boolean[numofclient];
+	int checkpointInstr=10;
 
 	int TS = 0;
 	int logline = 1;
@@ -71,11 +73,12 @@ class TCPServer extends Serverinterface implements Runnable {
 			i++;
 			undo.nextLine();
 		}
-		System.out.println("logline is " + logline);
+		//System.out.println("logline is " + logline);
 		while (i < logline) {
 			String command = undo.nextLine();
 			String[] comm2 = command.split(" ");
-			if (comm2[1].equals("WRITE")) {
+			
+			if (comm2[1].equals("WRITE") && comm2[0].contains(""+trans_num)) {
 				Item item = items.get((int) (Character.toLowerCase(comm2[3].charAt(0)) - 'a'));
 				if (item.touched == false) {
 					item.touched = true;
@@ -168,7 +171,7 @@ class TCPServer extends Serverinterface implements Runnable {
 	public int doButtonActionCheckpoint() {
 		try {
 			write_to_log("T0 CHECKPOINT");
-			//???????????????????????????????????????????????????????????
+			checkpoint(true);
 			logline++;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -199,7 +202,7 @@ class TCPServer extends Serverinterface implements Runnable {
 	// i is the demanding transaction timestamp and j the holders timestamp
 	public int waitType(int i, int j, int n, int t, Item item) throws IOException {
 		System.out.println(
-				"T" + t + " with " + i + " timestamp " + " try to catch" + "T" + n + " with " + j + " timestamp ");
+				"T" + t + " with " + i + " timestamp " + " try to catch " + "T" + n + " with " + j + " timestamp ");
 		// recourse earliest,trans earliest
 		if (option_type == 1) {// 1.Wound and wait 2.Wait And Die 3.Cautious
 			if (i == j) {
@@ -338,7 +341,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						if (timestamp[transaction_num] == 0){
 							if (!comm[1].equals("BEGIN")) {
 								num_of_clients--;
-								System.out.println(num_of_clients);
+							//	System.out.println(num_of_clients);
 								serverResponse = "KILL";
 								outToClient.writeBytes(serverResponse + '\n');
 								continue;
@@ -350,7 +353,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						}
 						if (comm[1].equals("END")) {
 							num_of_clients--;
-							System.out.println(num_of_clients);
+							//System.out.println(num_of_clients);
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
@@ -365,19 +368,21 @@ class TCPServer extends Serverinterface implements Runnable {
 						}
 						else if (comm[1].equals("COMMIT")) {
 							commited[transaction_num] = 1;
+							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						} else if (comm[1].equals("ABORT")) {
 							commited[transaction_num] = 2;
+							lock_commit[transaction_num] = 1;
 							// UNDO AT ABORT
 							write_to_log(clientSentence);
 							abort_trans(comm[0]);
 							log_flag = true;
 						} else if (comm[1].equals("READLOCK")) {
 							if (shrinking_phase[transaction_num] == true) {
-								System.out.println("YOU AREN'T ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+								System.out.println("YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
 								System.exit(0);
 							} else {
 								Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
@@ -409,7 +414,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						} else if (comm[1].equals("WRITELOCK")) {
 							if (shrinking_phase[transaction_num] == true) {
 								System.out.println(
-										"YOU AREN'T ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+										"YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
 								System.exit(0);
 							} else {
 								Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
@@ -465,7 +470,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						} else if (comm[1].equals("DELETELOCK")){
 							if (shrinking_phase[transaction_num] == true) {
 								System.out.println(
-										"YOU AREN'T ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+										"YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
 								System.exit(0);
 							} else {
 								boolean breaklock = false;
@@ -535,8 +540,8 @@ class TCPServer extends Serverinterface implements Runnable {
 							shrinking_phase[transaction_num] = true;
 							Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
 							if (item.status == 2 && item.list.size() == 1 && item.list.contains(transaction_num)) {
-								if (commited[transaction_num] == 0) {
-									System.out.println("YOU AREN'T ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
+								if (lock_commit[transaction_num] == 0) {
+									System.out.println("YOU ARE NOT ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
 									System.exit(0);
 								} else {
 									item.status = 0;
@@ -560,8 +565,8 @@ class TCPServer extends Serverinterface implements Runnable {
 							for (int k = start; k<end; k++) {
 								Item item = items.get(k);
 								if (item.status == 2 && item.list.size() == 1 && item.list.contains(transaction_num)) {
-									if (commited[transaction_num] == 0) {
-										System.out.println("YOU AREN'T ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
+									if (lock_commit[transaction_num] == 0) {
+										System.out.println("YOU ARE NOT ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
 										System.exit(0);
 									} else {
 										item.status = 0;
@@ -588,9 +593,11 @@ class TCPServer extends Serverinterface implements Runnable {
 								valuefw.close();
 								valuefw1.close();
 								serverResponse = "OK";
-								write_to_log(clientSentence + " " + temp);
-								log_flag = true;
+								write_to_log("T" + transaction_num + " WRITE " + comm[2] + " " + x.toString() + " 0 " + temp);
+								log_flag = false;
+								logline++;
 							}
+							
 							//READ OR WRITE
 						} else {
 							String temp2 = comm[2] + "/";
@@ -600,7 +607,7 @@ class TCPServer extends Serverinterface implements Runnable {
 								Scanner valuefw = new Scanner(valuefile);
 								String temp = valuefw.next();
 
-								System.out.println(comm[3] + "=" + temp);
+							//	System.out.println(comm[3] + "=" + temp);
 								valuefw.close();
 								// STELOUME TO VALUE PISW STON CLIENT
 
@@ -648,7 +655,7 @@ class TCPServer extends Serverinterface implements Runnable {
 
 							if (!comm[1].equals("BEGIN")) {
 								num_of_clients--;
-								System.out.println(num_of_clients);
+								//System.out.println(num_of_clients);
 								serverResponse = "KILL";
 								outToClient.writeBytes(serverResponse + '\n');
 								continue;
@@ -661,7 +668,7 @@ class TCPServer extends Serverinterface implements Runnable {
 
 						if (comm[1].equals("END")) {
 							num_of_clients--;
-							System.out.println(num_of_clients);
+							//System.out.println(num_of_clients);
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
@@ -677,12 +684,14 @@ class TCPServer extends Serverinterface implements Runnable {
 
 						else if (comm[1].equals("COMMIT")) {
 							commited[transaction_num] = 1;
+							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						} else if (comm[1].equals("ABORT")) {
 							commited[transaction_num] = 2;
+							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
 							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
@@ -690,7 +699,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						} else if (comm[1].equals("READLOCK")) {
 							if (shrinking_phase[transaction_num] == true) {
 								System.out.println(
-										"YOU AREN'T ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+										"YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
 								System.exit(0);
 							} else {
 								Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
@@ -722,7 +731,7 @@ class TCPServer extends Serverinterface implements Runnable {
 						} else if (comm[1].equals("WRITELOCK")) {
 							if (shrinking_phase[transaction_num] == true) {
 								System.out.println(
-										"YOU AREN'T ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+										"YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
 								System.exit(0);
 							} else {
 								Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
@@ -777,12 +786,83 @@ class TCPServer extends Serverinterface implements Runnable {
 
 								}
 							}
+						} else if (comm[1].equals("DELETELOCK")){
+							if (shrinking_phase[transaction_num] == true) {
+								System.out.println(
+										"YOU ARE NOT ALLOWED TO LOCK ANYTHING AFTER UNLOCKING AT LEAST ONE ITEM");
+								System.exit(0);
+							} else {
+								boolean breaklock = false;
+								//Lock ALL items needed
+								int start; int end;
+								if (comm[2].equals("FILE1")){start = 0; end = 10;}
+								else if (comm[2].equals("FILE2")){start = 10; end = 20;}
+								else {start = 20; end = 26;}
+								for (int k = start; k<end; k++) {
+									Item item = items.get(k);
+									if (item.status != 2) {
+										if (item.status == 0 || (item.status == 1 && item.list.size() == 1
+												&& item.list.contains(transaction_num))) {
+											item.status = 2;
+											waitgraph[transaction_num] = false;
+											serverResponse = "OK";
+											if (!item.list.contains(transaction_num))
+												item.list.add(transaction_num);
+										} else {
+
+											for (int inter = 0; inter < item.list.size(); inter++) {
+
+												int t = item.list.get(inter);
+												int i = timestamp[transaction_num];
+												int j = timestamp[t];
+												int temp = waitType(i, j, t, transaction_num, item);
+												if (temp == 0) {
+													waitgraph[transaction_num] = false;
+													serverResponse = "OK";
+												} else if (temp == 1) {
+													serverResponse = "WAIT";
+													breaklock = true;
+													break;
+
+												} else if (temp == 2) {
+													serverResponse = "RESTART";
+													breaklock = true;
+													break;
+
+												}
+											}
+											if (breaklock) break;
+										}
+										// outToClient.writeBytes("OK");
+									} else {
+
+										int i = timestamp[transaction_num];
+										int n = item.list.get(0);
+										int j = timestamp[n];
+										int temp = waitType(i, j, n, transaction_num, item);
+										if (temp == 0) {
+											serverResponse = "OK";
+										} else if (temp == 1) {
+											serverResponse = "WAIT";
+											break;
+										} else if (temp == 2) {
+											serverResponse = "RESTART";
+											break;
+											// item.list.remove(0);
+
+										}
+										// outToClient.writeBytes("WAIT");
+
+									}
+								}//end of loop
+							}
+
 						} else if (comm[1].equals("UNLOCK")) {
 							shrinking_phase[transaction_num] = true;
 							Item item = items.get((int) (Character.toLowerCase(comm[3].charAt(0)) - 'a'));
 							if (item.status == 2 && item.list.size() == 1 && item.list.contains(transaction_num)) {
-								if (commited[transaction_num] == 0) {
-									System.out.println("YOU AREN'T ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
+								if (lock_commit[transaction_num] == 0) {
+									System.out.println("YOU ARE NOT ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
 									System.exit(0);
 								} else {
 									item.status = 0;
@@ -797,6 +877,48 @@ class TCPServer extends Serverinterface implements Runnable {
 							}
 							serverResponse = "OK";
 							// outToClient.writeBytes("OK");
+						} else if (comm[1].equals("DELETEUNLOCK")) {
+							shrinking_phase[transaction_num] = true;
+							int start; int end;
+							if (comm[2].equals("FILE1")){start = 0; end = 10;}
+							else if (comm[2].equals("FILE2")){start = 10; end = 20;}
+							else {start = 20; end = 26;}
+							for (int k = start; k<end; k++) {
+							Item item = items.get(k);
+							if (item.status == 2 && item.list.size() == 1 && item.list.contains(transaction_num)) {
+								if (lock_commit[transaction_num] == 0) {
+									System.out.println("YOU ARE NOT ALLOWED TO UNLOCK A WRITE-LOCK BEFORE COMMIT");
+									System.exit(0);
+								} else {
+									item.status = 0;
+									item.list.remove((Integer) transaction_num);
+								}
+							} else if (item.status == 1 && item.list.size() == 1
+									&& item.list.contains(transaction_num)) {
+								item.status = 0;
+								item.list.remove((Integer) transaction_num);
+							} else {
+								item.list.remove((Integer) transaction_num);
+							}
+							serverResponse = "OK";
+							// outToClient.writeBytes("OK");
+							}
+						} else if (comm[1].equals("DELETE")){
+							int start; int end;
+							if (comm[2].equals("FILE1")){start = 0; end = 10;}
+							else if (comm[2].equals("FILE2")){start = 10; end = 20;}
+							else {start = 20; end = 26;}
+							for (int k = start; k<end; k++) {
+								Character x = (char)('A' + k);
+								//System.out.println("OK");
+								// outToClient.writeBytes("OK");
+								write_to_log("T" + transaction_num + " WRITE " + comm[2] + " " + x.toString() + " 0");
+								if (logline % 10 == 0 || num_of_clients == 0) {
+									checkpoint (true);
+								}
+								logline++;
+							}
+							log_flag = false;
 						} else {
 							String temp2 = comm[2] + "/";
 							File valuefile = new File(temp2 + comm[3] + ".txt");
@@ -805,7 +927,7 @@ class TCPServer extends Serverinterface implements Runnable {
 								Scanner valuefw = new Scanner(valuefile);
 								String temp = valuefw.next();
 
-								System.out.println(comm[3] + "=" + temp);
+								//System.out.println(comm[3] + "=" + temp);
 								valuefw.close();
 								// STELOUME TO VALUE PISW STON CLIENT
 
@@ -816,7 +938,7 @@ class TCPServer extends Serverinterface implements Runnable {
 								log_flag = true;
 								// WRITE COMMAND
 							} else if (comm[1].equals("WRITE")) {
-								System.out.println("OK");
+								//System.out.println("OK");
 								// STELOUME TO VALUE PISW STON CLIENT
 								// outToClient.writeBytes("OK");
 								serverResponse = "OK";
@@ -828,7 +950,7 @@ class TCPServer extends Serverinterface implements Runnable {
 							}
 						}
 						// CHECKPOINT PHASE
-						if (logline % 10 == 0 || num_of_clients == 0) {
+						if ((logline % 10 == 0 || num_of_clients == 0) && log_flag) {
 							checkpoint (log_flag);
 						}
 
