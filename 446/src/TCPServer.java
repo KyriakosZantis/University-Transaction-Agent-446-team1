@@ -73,7 +73,7 @@ class TCPServer extends Serverinterface implements Runnable {
 			i++;
 			undo.nextLine();
 		}
-		//System.out.println("logline is " + logline);
+	
 		while (i < logline) {
 			String command = undo.nextLine();
 			String[] comm2 = command.split(" ");
@@ -113,7 +113,7 @@ class TCPServer extends Serverinterface implements Runnable {
 				}
 			}
 		}
-		// System.out.println("start_line "+start_line);
+		
 		Scanner redo = new Scanner(log_file);
 		int i = 1;
 		while (i < start_line) {
@@ -280,6 +280,7 @@ class TCPServer extends Serverinterface implements Runnable {
 	}
 
 
+	@SuppressWarnings("null")
 	@Override
 	public void run() {
 		log_file = new File("log.txt");
@@ -314,12 +315,13 @@ class TCPServer extends Serverinterface implements Runnable {
 
 			String clientSentence;
 			String serverResponse = "";
+			@SuppressWarnings("resource")
 			ServerSocket welcomeSocket = new ServerSocket(6789);
-			// String buffer = "This is the content to write into file";
+
 			while (true) {
 				System.out.println("Log will write the next entry at line : " + logline);
 				boolean log_flag = false;
-				// TODO Auto-generated method stub
+	
 				Socket connectionSocket = welcomeSocket.accept();
 				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
@@ -353,16 +355,13 @@ class TCPServer extends Serverinterface implements Runnable {
 						}
 						if (comm[1].equals("END")) {
 							num_of_clients--;
-							//System.out.println(num_of_clients);
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						}
 						else if (comm[1].equals("BEGIN")) {
 							earliestLSN[transaction_num] = logline;
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						}
@@ -370,7 +369,6 @@ class TCPServer extends Serverinterface implements Runnable {
 							commited[transaction_num] = 1;
 							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						} else if (comm[1].equals("ABORT")) {
@@ -389,7 +387,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								if (item.status != 2) {
 									item.status = 1;
 									item.list.add(transaction_num);
-									// outToClient.writeBytes("OK");
 									waitgraph[transaction_num] = false;
 									serverResponse = "OK";
 								} else {
@@ -405,7 +402,6 @@ class TCPServer extends Serverinterface implements Runnable {
 										serverResponse = "WAIT";
 									} else if (temp == 2) {
 										serverResponse = "RESTART";
-										// item.list.remove(0);
 									}
 
 								}
@@ -448,7 +444,6 @@ class TCPServer extends Serverinterface implements Runnable {
 											}
 										}
 									}
-									// outToClient.writeBytes("OK");
 								} else {
 									int i = timestamp[transaction_num];
 									int n = item.list.get(0);
@@ -460,10 +455,8 @@ class TCPServer extends Serverinterface implements Runnable {
 										serverResponse = "WAIT";
 									} else if (temp == 2) {
 										serverResponse = "RESTART";
-										// item.list.remove(0);
 
 									}
-									// outToClient.writeBytes("WAIT");
 								}
 							}
 							
@@ -514,7 +507,6 @@ class TCPServer extends Serverinterface implements Runnable {
 											}
 											if (breaklock) break;
 										}
-										// outToClient.writeBytes("OK");
 									} else {
 										int i = timestamp[transaction_num];
 										int n = item.list.get(0);
@@ -528,10 +520,8 @@ class TCPServer extends Serverinterface implements Runnable {
 										} else if (temp == 2) {
 											serverResponse = "RESTART";
 											break;
-											// item.list.remove(0);
 
 										}
-										// outToClient.writeBytes("WAIT");
 									}
 								}//end of loop
 							}
@@ -555,7 +545,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								item.list.remove((Integer) transaction_num);
 							}
 							serverResponse = "OK";
-							// outToClient.writeBytes("OK");
 						}else if (comm[1].equals("DELETEUNLOCK")) {
 							shrinking_phase[transaction_num] = true;
 							int start; int end;
@@ -574,7 +563,6 @@ class TCPServer extends Serverinterface implements Runnable {
 									}
 								}
 								serverResponse = "OK";
-								// outToClient.writeBytes("OK");
 							}
 						} else if(comm[1].equals("DELETE")){
 							int start; int end;
@@ -607,11 +595,9 @@ class TCPServer extends Serverinterface implements Runnable {
 								Scanner valuefw = new Scanner(valuefile);
 								String temp = valuefw.next();
 
-							//	System.out.println(comm[3] + "=" + temp);
 								valuefw.close();
 								// STELOUME TO VALUE PISW STON CLIENT
 
-								// outToClient.writeBytes(temp);
 								serverResponse = temp;
 
 								write_to_log(clientSentence);
@@ -627,7 +613,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								valuefw1.close();
 
 								// STELOUME TO VALUE PISW STON CLIENT
-								// outToClient.writeBytes("OK");
 								serverResponse = "OK";
 								write_to_log(clientSentence + " " + temp);
 								log_flag = true;
@@ -655,7 +640,6 @@ class TCPServer extends Serverinterface implements Runnable {
 
 							if (!comm[1].equals("BEGIN")) {
 								num_of_clients--;
-								//System.out.println(num_of_clients);
 								serverResponse = "KILL";
 								outToClient.writeBytes(serverResponse + '\n');
 								continue;
@@ -668,16 +652,13 @@ class TCPServer extends Serverinterface implements Runnable {
 
 						if (comm[1].equals("END")) {
 							num_of_clients--;
-							//System.out.println(num_of_clients);
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						}
 						else if (comm[1].equals("BEGIN")) {
 							earliestLSN[transaction_num] = logline;
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						}
@@ -686,14 +667,12 @@ class TCPServer extends Serverinterface implements Runnable {
 							commited[transaction_num] = 1;
 							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						} else if (comm[1].equals("ABORT")) {
 							commited[transaction_num] = 2;
 							lock_commit[transaction_num] = 1;
 							write_to_log(clientSentence);
-							// outToClient.writeBytes("OK");
 							serverResponse = "OK";
 							log_flag = true;
 						} else if (comm[1].equals("READLOCK")) {
@@ -706,7 +685,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								if (item.status != 2) {
 									item.status = 1;
 									item.list.add(transaction_num);
-									// outToClient.writeBytes("OK");
 									waitgraph[transaction_num] = false;
 									serverResponse = "OK";
 								} else {
@@ -722,7 +700,6 @@ class TCPServer extends Serverinterface implements Runnable {
 										serverResponse = "WAIT";
 									} else if (temp == 2) {
 										serverResponse = "RESTART";
-										// item.list.remove(0);
 
 									}
 								}
@@ -766,7 +743,6 @@ class TCPServer extends Serverinterface implements Runnable {
 										}
 
 									}
-									// outToClient.writeBytes("OK");
 								} else {
 
 									int i = timestamp[transaction_num];
@@ -779,10 +755,8 @@ class TCPServer extends Serverinterface implements Runnable {
 										serverResponse = "WAIT";
 									} else if (temp == 2) {
 										serverResponse = "RESTART";
-										// item.list.remove(0);
 
 									}
-									// outToClient.writeBytes("WAIT");
 
 								}
 							}
@@ -833,7 +807,6 @@ class TCPServer extends Serverinterface implements Runnable {
 											}
 											if (breaklock) break;
 										}
-										// outToClient.writeBytes("OK");
 									} else {
 
 										int i = timestamp[transaction_num];
@@ -848,10 +821,8 @@ class TCPServer extends Serverinterface implements Runnable {
 										} else if (temp == 2) {
 											serverResponse = "RESTART";
 											break;
-											// item.list.remove(0);
 
 										}
-										// outToClient.writeBytes("WAIT");
 
 									}
 								}//end of loop
@@ -876,7 +847,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								item.list.remove((Integer) transaction_num);
 							}
 							serverResponse = "OK";
-							// outToClient.writeBytes("OK");
 						} else if (comm[1].equals("DELETEUNLOCK")) {
 							shrinking_phase[transaction_num] = true;
 							int start; int end;
@@ -901,7 +871,6 @@ class TCPServer extends Serverinterface implements Runnable {
 								item.list.remove((Integer) transaction_num);
 							}
 							serverResponse = "OK";
-							// outToClient.writeBytes("OK");
 							}
 						} else if (comm[1].equals("DELETE")){
 							int start; int end;
@@ -910,8 +879,6 @@ class TCPServer extends Serverinterface implements Runnable {
 							else {start = 20; end = 26;}
 							for (int k = start; k<end; k++) {
 								Character x = (char)('A' + k);
-								//System.out.println("OK");
-								// outToClient.writeBytes("OK");
 								write_to_log("T" + transaction_num + " WRITE " + comm[2] + " " + x.toString() + " 0");
 								if (logline % 10 == 0 || num_of_clients == 0) {
 									checkpoint (true);
@@ -927,20 +894,16 @@ class TCPServer extends Serverinterface implements Runnable {
 								Scanner valuefw = new Scanner(valuefile);
 								String temp = valuefw.next();
 
-								//System.out.println(comm[3] + "=" + temp);
 								valuefw.close();
 								// STELOUME TO VALUE PISW STON CLIENT
 
-								// outToClient.writeBytes(temp);
 								serverResponse = temp;
 
 								write_to_log(clientSentence);
 								log_flag = true;
 								// WRITE COMMAND
 							} else if (comm[1].equals("WRITE")) {
-								//System.out.println("OK");
 								// STELOUME TO VALUE PISW STON CLIENT
-								// outToClient.writeBytes("OK");
 								serverResponse = "OK";
 								write_to_log(clientSentence);
 								log_flag = true;

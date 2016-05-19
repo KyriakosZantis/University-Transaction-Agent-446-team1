@@ -4,10 +4,6 @@ public class OurMain extends Menu {
 
 	Thread[] clients =null;
 
-	/**
-	 * @param args
-	 */
-
 	@Override
 	public int doButtonAction() {
 
